@@ -25,13 +25,13 @@ PixelBuffer::~PixelBuffer() {
     }
 }
 
-void PixelBuffer::set_pixel(int x, int y, const Color& color) {
+void PixelBuffer::set_pixel(int x, int y, const Colour& color) {
     if (x < 0 || x >= m_width || y < 0 || y >= m_height) return;
     m_pixels[y * m_width + x] = color.to_argb32();
 }
 
-void PixelBuffer::clear(const Color& color) {
-    uint32_t packed = color.to_argb32();
+void PixelBuffer::clear(const Colour& colour) {
+    uint32_t packed = colour.to_argb32();
     std::fill(m_pixels.begin(), m_pixels.end(), packed);
 }
 

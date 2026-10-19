@@ -14,10 +14,10 @@ public:
     PixelBuffer& operator=(const PixelBuffer&) = delete;
 
     // Set pixel using our strong Color type
-    void set_pixel(int x, int y, const Color& color);
+    void set_pixel(int x, int y, const Colour& color);
 
     // Clear entire buffer with a background color
-    void clear(const Color& color = Color::black());
+    void clear(const Colour& color = Colour::black());
 
     // Stream CPU buffer to the GPU SDL_Texture
     void render();

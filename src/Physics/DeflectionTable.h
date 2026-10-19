@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Vec3/Vec3.h"
+#include "Math/Vec3.h"
+#include "Math/Ray.h"
+#include "Physics/Physics.h"
 #include <vector>
 
 // Precomputed photon deflection for a camera at a fixed distance from the black hole.
@@ -14,17 +16,19 @@
 // Assumes the camera is outside the photon sphere (r > 3M).
 class DeflectionTable {
     public:
-        explicit DeflectionTable(double M, int samples = 4096);
+        explicit DeflectionTable(double M, int samples = 4096,
+                                 const Physics::TracerSettings& tracer = Physics::TracerSettings());
 
         // Rebuilds the table only if the camera's distance from the hole has changed
         void update(double camera_radius);
 
         // Returns false if the ray falls into the black hole, otherwise writes its escape direction
-        bool exit_direction(const Vec3& cam_pos, const Vec3& dir, Vec3& out_dir) const;
+        bool exit_direction(const Ray& ray, Vec3& out_dir) const;
 
     private:
         double m_M;
         int m_samples;
+        Physics::TracerSettings m_tracer;
         double m_radius;
         double m_alpha_crit;              // Rays aimed closer than this to the hole are captured
         std::vector<double> m_exit_angle; // Unwrapped exit direction angle within the ray's plane

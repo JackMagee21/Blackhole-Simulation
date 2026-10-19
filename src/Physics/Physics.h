@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vec3/Vec3.h"
+#include "Math/Vec3.h"
 #include <algorithm>
 #include <cmath>
 
@@ -57,12 +57,20 @@ namespace Physics {
         vel = vel + (k1_v + k2_v * 2.0 + k3_v * 2.0 + k4_v) * (dt / 6.0);
     }
 
+    // Limits and accuracy for trace_photon. Lengths are in units of M so the same settings
+    // give the same accuracy for any black hole mass.
+    struct TracerSettings {
+        double escape_radius_in_M = 1000.0; // Far field boundary (remaining bending negligible)
+        int max_steps = 20000;               // Beyond this the photon counts as trapped near r = 3M
+        double step_scale = 0.03;            // Step size relative to distance, far from the hole
+        double min_step_in_M = 0.02;         // Smallest step, used right next to the horizon
+    };
+
     // Step size grows with distance: small near the photon sphere where rays bend sharply,
     // large far away where spacetime is nearly flat and a fixed tiny step is wasted work.
-    // Expressed in units of M so the accuracy is the same for any black hole mass.
-    inline double adaptive_step(double r, double M) {
+    inline double adaptive_step(double r, double M, const TracerSettings& settings) {
         double x = r / M;
-        return M * std::max(0.03 * x * x / (1.0 + x), 0.02);
+        return M * std::max(settings.step_scale * x * x / (1.0 + x), settings.min_step_in_M);
     }
 
     struct PhotonResult {
@@ -72,16 +80,16 @@ namespace Physics {
 
     // Marches a single photon through curved Schwarzschild spacetime until it either
     // crosses the event horizon or escapes to effectively flat space.
-    inline PhotonResult trace_photon(Vec3 pos, Vec3 vel, double M) {
+    inline PhotonResult trace_photon(Vec3 pos, Vec3 vel, double M,
+                                     const TracerSettings& settings = TracerSettings()) {
         const double r_horizon = 2.0 * M;   // Event horizon boundary (Schwarzschild radius)
-        const double r_escape = 1000.0 * M; // Far field boundary (remaining bending negligible)
-        const int max_steps = 20000;
+        const double r_escape = settings.escape_radius_in_M * M;
 
         const double r_horizon2 = r_horizon * r_horizon;
         const double r_escape2 = r_escape * r_escape;
         const double h2 = pos.cross(vel).norm_squared();
 
-        for (int step = 0; step < max_steps; ++step) {
+        for (int step = 0; step < settings.max_steps; ++step) {
             double r2 = pos.norm_squared();
 
             // 1. Ray fell into the event horizon -> Swallowed forever
@@ -95,7 +103,7 @@ namespace Physics {
             }
 
             // 3. Step forward along null geodesic
-            step_rk4(pos, vel, adaptive_step(std::sqrt(r2), M), h2, M);
+            step_rk4(pos, vel, adaptive_step(std::sqrt(r2), M, settings), h2, M);
         }
 
         // Trapped in unstable orbits near photon sphere (r = 3M)

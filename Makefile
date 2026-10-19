@@ -13,7 +13,7 @@ ifeq ($(strip $(SDL_LIBS)),)
     SDL_LIBS := -lSDL2
 endif
 
-INCLUDES := -I. -Iinclude -Isrc $(SDL_CFLAGS)
+INCLUDES     := -Isrc $(SDL_CFLAGS)
 LIBS         := $(SDL_LIBS) -lm -fopenmp
 
 # Output binary name
@@ -21,7 +21,7 @@ TARGET       := sim
 
 # Directories
 BUILD_DIR    := build
-SRC_DIRS     := src Window
+SRC_DIRS     := src
 
 
 # Find all .cpp files in the source directories (and their subdirectories)

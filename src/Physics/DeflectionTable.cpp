@@ -1,11 +1,11 @@
 #include "DeflectionTable.h"
-#include "Physics.h"
 #include <algorithm>
 #include <cmath>
 
-DeflectionTable::DeflectionTable(double M, int samples)
+DeflectionTable::DeflectionTable(double M, int samples, const Physics::TracerSettings& tracer)
     : m_M(M),
       m_samples(samples),
+      m_tracer(tracer),
       m_radius(-1.0),
       m_alpha_crit(0.0),
       m_exit_angle(samples, 0.0)
@@ -25,7 +25,7 @@ bool DeflectionTable::trace_in_plane(double alpha, double& exit_angle) const {
     Vec3 pos(-m_radius, 0.0, 0.0);
     Vec3 dir(std::cos(alpha), std::sin(alpha), 0.0);
 
-    Physics::PhotonResult result = Physics::trace_photon(pos, dir, m_M);
+    Physics::PhotonResult result = Physics::trace_photon(pos, dir, m_M, m_tracer);
     if (result.captured) {
         return false;
     }
@@ -74,9 +74,10 @@ void DeflectionTable::update(double camera_radius) {
     }
 }
 
-bool DeflectionTable::exit_direction(const Vec3& cam_pos, const Vec3& dir, Vec3& out_dir) const {
+bool DeflectionTable::exit_direction(const Ray& ray, Vec3& out_dir) const {
     // Local frame of the ray's plane: e1 points toward the hole, e2 holds the rest of dir
-    Vec3 e1 = -cam_pos.normalized();
+    const Vec3& dir = ray.direction;
+    Vec3 e1 = -ray.origin.normalized();
     double cos_alpha = std::clamp(dir.dot(e1), -1.0, 1.0);
     double alpha = std::acos(cos_alpha);
 

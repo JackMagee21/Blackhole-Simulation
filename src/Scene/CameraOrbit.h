@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Physics/Vec3/Vec3.h"
+#include "Math/Vec3.h"
 
 // Moves the camera in a horizontal circle around a target at a fixed height
 class CameraOrbit {

@@ -3,7 +3,7 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include <cstdint>
-#include "Colour.h"
+#include "Render/Colour.h"
 
 class PixelBuffer {
 public:

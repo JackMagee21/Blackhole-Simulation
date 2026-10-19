@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Colour.h"
-#include "Camera/Camera.h"
+#include "Render/Colour.h"
+#include "Scene/Camera.h"
 #include "Physics/DeflectionTable.h"
 #include "Scene/CelestialSphere.h"
 
@@ -15,9 +15,9 @@ class Renderer {
         }
 
         // Colour seen along one camera ray
-        Colour shade(const Vec3& cam_pos, const Vec3& dir) const {
+        Colour shade(const Ray& ray) const {
             Vec3 exit_dir;
-            return m_deflection_table.exit_direction(cam_pos, dir, exit_dir)
+            return m_deflection_table.exit_direction(ray, exit_dir)
                 ? m_sky.sample(exit_dir)
                 : Colour::black();
         }
@@ -31,15 +31,13 @@ class Renderer {
             const int height = target.get_height();
 
             // Only retraces when the camera's distance from the hole changes
-            Vec3 cam_pos = camera.get_position();
-            m_deflection_table.update(cam_pos.norm());
+            m_deflection_table.update(camera.get_position().norm());
 
             // Multi-threaded render pass using OpenMP across scanlines
             #pragma omp parallel for schedule(dynamic, 8)
             for (int y = 0; y < height; ++y) {
                 for (int x = 0; x < width; ++x) {
-                    Ray ray = camera.generate_ray(x, y, width, height);
-                    target.set_pixel(x, y, shade(cam_pos, ray.direction));
+                    target.set_pixel(x, y, shade(camera.generate_ray(x, y, width, height)));
                 }
             }
         }

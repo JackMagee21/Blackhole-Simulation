@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vec3/Vec3.h"
+#include "Math/Vec3.h"
 
 struct Ray {
     Vec3 origin;

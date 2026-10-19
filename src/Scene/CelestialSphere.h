@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Colour.h"
-#include "Physics/Vec3/Vec3.h"
+#include "Render/Colour.h"
+#include "Math/Vec3.h"
 
 // The infinitely distant background sky, sampled by the direction a ray escapes in.
 // A checkerboard of latitude/longitude tiles makes lensing distortion easy to see.

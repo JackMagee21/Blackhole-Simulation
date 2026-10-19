@@ -35,26 +35,26 @@ namespace Physics {
         Vec3 k1_x = vel;
 
         // Stage 2
-        Vec3 p2 = pos + k1_x * (dt * 0.5);
-        Vec3 v2 = vel + k1_v * (dt * 0.5);
+        Vec3 p2 = pos + (dt * 0.5) * k1_x;
+        Vec3 v2 = vel + (dt * 0.5) * k1_v;
         Vec3 k2_v = geodesic_acceleration(p2, h2, M);
         Vec3 k2_x = v2;
 
         // Stage 3
-        Vec3 p3 = pos + k2_x * (dt * 0.5);
-        Vec3 v3 = vel + k2_v * (dt * 0.5);
+        Vec3 p3 = pos + (dt * 0.5) * k2_x;
+        Vec3 v3 = vel + (dt * 0.5) * k2_v;
         Vec3 k3_v = geodesic_acceleration(p3, h2, M);
         Vec3 k3_x = v3;
 
         // Stage 4
-        Vec3 p4 = pos + k3_x * dt;
-        Vec3 v4 = vel + k3_v * dt;
+        Vec3 p4 = pos + dt * k3_x;
+        Vec3 v4 = vel + dt * k3_v;
         Vec3 k4_v = geodesic_acceleration(p4, h2, M);
         Vec3 k4_x = v4;
 
         // Weighted integration update
-        pos = pos + (k1_x + k2_x * 2.0 + k3_x * 2.0 + k4_x) * (dt / 6.0);
-        vel = vel + (k1_v + k2_v * 2.0 + k3_v * 2.0 + k4_v) * (dt / 6.0);
+        pos += (dt / 6.0) * (k1_x + 2.0 * k2_x + 2.0 * k3_x + k4_x);
+        vel += (dt / 6.0) * (k1_v + 2.0 * k2_v + 2.0 * k3_v + k4_v);
     }
 
     // Limits and accuracy for trace_photon. Lengths are in units of M so the same settings

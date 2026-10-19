@@ -27,9 +27,9 @@ struct Colour {
         return {r * other.r, g * other.g, b * other.b};
     }
 
-    // Converts linear floating-point light values into a packed 32-bit integer (ARGB8888)
-    // formatted for the SDL2 texture streaming pipeline.
-    uint32_t to_argb32() const {
+    // Display transform: maps linear light to gamma-encoded values in [0, 1].
+    // Exposure control or tone mapping belongs here, before the clamp.
+    Colour to_display() const {
         // 1. Clamp values to [0.0, 1.0].
         // Relativistic beaming and Doppler boosts can exceed 1.0 (HDR values).
         // Clamping prevents integer overflow wrap-around (e.g. 260 becoming 4, 
@@ -47,17 +47,28 @@ struct Colour {
         double gg = std::pow(cg, 1.0 / 2.2);
         double gb = std::pow(cb, 1.0 / 2.2);
 
-        // 3. Scale normalized [0.0, 1.0] floats to standard 8-bit color channels [0, 255].
-        uint8_t ir = static_cast<uint8_t>(gr * 255.0);
-        uint8_t ig = static_cast<uint8_t>(gg * 255.0);
-        uint8_t ib = static_cast<uint8_t>(gb * 255.0);
+        return {gr, gg, gb};
+    }
 
-        // 4. Pack into a single 32-bit ARGB integer (0xAARRGGBB):
+    // Packs channels already in [0, 1] into a 32-bit integer (ARGB8888)
+    // formatted for the SDL2 texture streaming pipeline.
+    uint32_t pack_argb32() const {
+        // 1. Scale normalized [0.0, 1.0] floats to standard 8-bit color channels [0, 255].
+        uint8_t ir = static_cast<uint8_t>(r * 255.0);
+        uint8_t ig = static_cast<uint8_t>(g * 255.0);
+        uint8_t ib = static_cast<uint8_t>(b * 255.0);
+
+        // 2. Pack into a single 32-bit ARGB integer (0xAARRGGBB):
         // - 0xFFu << 24 sets the Alpha channel to 255 (fully opaque) in bits 24-31.
         // - ir << 16 places Red into bits 16-23.
         // - ig << 8 places Green into bits 8-15.
         // - ib sits directly in bits 0-7 (Blue).
         return (0xFFu << 24) | (ir << 16) | (ig << 8) | ib;
+    }
+
+    // Converts linear light straight to a packed display pixel
+    uint32_t to_argb32() const {
+        return to_display().pack_argb32();
     }
 
     static constexpr Colour black() { return {0.0, 0.0, 0.0}; }

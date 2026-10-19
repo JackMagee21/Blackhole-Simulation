@@ -17,6 +17,10 @@ struct Vec3 {
     Vec3 operator/(double s) const      { return {x / s, y / s, z / s}; }
     Vec3 operator-() const              { return {-x, -y, -z}; }
 
+    Vec3& operator+=(const Vec3& b) { x += b.x; y += b.y; z += b.z; return *this; }
+    Vec3& operator-=(const Vec3& b) { x -= b.x; y -= b.y; z -= b.z; return *this; }
+    Vec3& operator*=(double s)      { x *= s; y *= s; z *= s; return *this; }
+
     // Dot product: measures alignment
     double dot(const Vec3& b) const {
         return x * b.x + y * b.y + z * b.z;
@@ -46,3 +50,6 @@ struct Vec3 {
         return (len > 1e-9) ? (*this / len) : Vec3(0, 0, 0);
     }
 };
+
+// Lets scalars go on either side, e.g. 2.0 * v
+inline Vec3 operator*(double s, const Vec3& v) { return v * s; }

@@ -1,7 +1,7 @@
 # Compiler & Flags
 CXX          := g++
-CXXFLAGS     := -std=c++17 -Wall -Wextra -pedantic -MMD -MP
-OPTFLAGS     := -O3 -fopenmp
+CXXFLAGS     := -std=c++17 -Wall -Wextra -pedantic -MMD -MP -fopenmp
+OPTFLAGS     := -O3 -march=native -ffast-math
 DEBUGFLAGS   := -g -DDEBUG
 
 # Libraries and external flags

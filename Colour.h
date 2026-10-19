@@ -4,26 +4,26 @@
 #include <algorithm>
 #include <cmath>
 
-struct Color {
+struct Colour {
     double r;
     double g;
     double b;
 
-    constexpr Color(double r = 0.0, double g = 0.0, double b = 0.0)
+    constexpr Colour(double r = 0.0, double g = 0.0, double b = 0.0)
         : r(r), g(g), b(b) {}
 
-    // Color addition (light accumulation)
-    Color operator+(const Color& other) const {
+    // Colour addition (light accumulation)
+    Colour operator+(const Colour& other) const {
         return {r + other.r, g + other.g, b + other.b};
     }
 
     // Scalar scaling (intensity, attenuation, exposure)
-    Color operator*(double scalar) const {
+    Colour operator*(double scalar) const {
         return {r * scalar, g * scalar, b * scalar};
     }
 
     // Component-wise multiplication (filtering / material reflectance)
-    Color operator*(const Color& other) const {
+    Colour operator*(const Colour& other) const {
         return {r * other.r, g * other.g, b * other.b};
     }
 
@@ -61,10 +61,10 @@ struct Color {
     }
 
     // Common presets
-    static constexpr Color black() { return {0.0, 0.0, 0.0}; }
-    static constexpr Color white() { return {1.0, 1.0, 1.0}; }
+    static constexpr Colour black() { return {0.0, 0.0, 0.0}; }
+    static constexpr Colour white() { return {1.0, 1.0, 1.0}; }
 
-    static constexpr Color Red() { return {1.0, 0.0, 0.0}; }
-    static constexpr Color Blue() { return {0.0, 1.0, 0.0}; }
-    static constexpr Color Green() { return {0.0, 0.0, 1.0}; }
+    static constexpr Colour Red() { return {1.0, 0.0, 0.0}; }
+    static constexpr Colour Blue() { return {0.0, 1.0, 0.0}; }
+    static constexpr Colour Green() { return {0.0, 0.0, 1.0}; }
 };

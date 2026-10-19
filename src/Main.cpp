@@ -1,80 +1,35 @@
 #include "../Window/Window.h"
 #include "PixelBuffer/PixelBuffer.h"
-#include "Colour.h"
-#include "Physics/Vec3/Vec3.h"
-#include "Physics/Ray.h"
 #include "Camera/Camera.h"
-#include "Physics/DeflectionTable.h"
-#include <cmath>
-#include <algorithm>
-
-// Samples a celestial sphere grid based on the final exit direction of the ray
-Colour sample_celestial_background(const Vec3& dir) {
-    // Convert direction vector to spherical coordinates (longitude / latitude)
-    double phi = std::atan2(dir.z, dir.x);                    // -PI to PI
-    double theta = std::asin(std::clamp(dir.y, -1.0, 1.0));   // -PI/2 to PI/2
-
-    // Checkerboard/celestial coordinate lines to clearly reveal lensing distortion
-    const double tile_scale = 6.0;
-    int u = static_cast<int>(std::floor((phi + M_PI) * (tile_scale / M_PI)));
-    int v = static_cast<int>(std::floor((theta + M_PI * 0.5) * (tile_scale / (M_PI * 0.5))));
-
-    bool is_light_tile = ((u + v) % 2 == 0);
-
-    // Subtle starfield-like colors
-    if (is_light_tile) {
-        return Colour(0.12, 0.14, 0.22);
-    } else {
-        return Colour(0.02, 0.02, 0.05);
-    }
-}
+#include "Render/Renderer.h"
+#include "Scene/CameraOrbit.h"
+#include "Scene/SceneConfig.h"
+#include <chrono>
 
 int main() {
-    const int screen_width = 800;
-    const int screen_height = 600;
-    const double aspect_ratio = static_cast<double>(screen_width) / screen_height;
+    SceneConfig config;
+    const double M = config.black_hole_mass;
 
-    Window window("Relativistic Black Hole - Schwarzschild Geodesics", screen_width, screen_height);
-    PixelBuffer buffer(window.get_renderer(), screen_width, screen_height);
+    Window window("Relativistic Black Hole - Schwarzschild Geodesics", config.screen_width, config.screen_height);
+    PixelBuffer buffer(window.get_renderer(), config.screen_width, config.screen_height);
 
-    // Black hole mass in geometric units (G = c = 1). Event horizon radius is 2M.
-    // Scene distances below are multiples of M, so changing it scales the hole without changing the view.
-    const double black_hole_mass = 1.0;
+    CameraOrbit orbit(config.orbit_radius_in_M * M, config.camera_height_in_M * M, config.orbit_speed);
+    Camera camera(orbit.position(), orbit.target(), config.fov_degrees, config.aspect_ratio());
+    Renderer renderer(M);
 
-    Vec3 target(0.0, 0.0, 0.0);
-    double fov_degrees = 55.0;
-    double orbit_radius = 16.0 * black_hole_mass;
-    double camera_height = 2.5 * black_hole_mass;
-    double orbit_angle = 0.0;
-
-    Camera camera(Vec3(0.0, camera_height, -orbit_radius), target, fov_degrees, aspect_ratio);
-    DeflectionTable deflection_table(black_hole_mass);
+    using Clock = std::chrono::steady_clock;
+    Clock::time_point last_frame = Clock::now();
 
     while (window.is_open()) {
         window.poll_events();
 
         // Orbit the camera smoothly around the black hole
-        orbit_angle += 0.008;
-        double cam_x = std::sin(orbit_angle) * orbit_radius;
-        double cam_z = -std::cos(orbit_angle) * orbit_radius;
-        camera.look_at(Vec3(cam_x, camera_height, cam_z), target);
+        Clock::time_point now = Clock::now();
+        orbit.advance(std::chrono::duration<double>(now - last_frame).count());
+        last_frame = now;
+        camera.look_at(orbit.position(), orbit.target());
 
-        // Only retraces when the camera's distance from the hole changes
-        Vec3 cam_pos = camera.get_position();
-        deflection_table.update(cam_pos.norm());
-
-        // Multi-threaded render pass using OpenMP across scanlines
-        #pragma omp parallel for schedule(dynamic, 8)
-        for (int y = 0; y < screen_height; ++y) {
-            for (int x = 0; x < screen_width; ++x) {
-                Ray ray = camera.generate_ray(x, y, screen_width, screen_height);
-                Vec3 exit_dir;
-                Colour pixel_color = deflection_table.exit_direction(cam_pos, ray.direction, exit_dir)
-                    ? sample_celestial_background(exit_dir)
-                    : Colour::black();
-                buffer.set_pixel(x, y, pixel_color);
-            }
-        }
+        renderer.render_frame(camera, buffer);
 
         window.clear();
         buffer.render();

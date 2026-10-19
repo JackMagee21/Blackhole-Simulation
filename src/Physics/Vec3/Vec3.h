@@ -36,6 +36,10 @@ struct Vec3 {
         return std::sqrt(x * x + y * y + z * z);
     }
 
+    double norm_squared() const {
+        return x * x + y * y + z * z;
+    }
+
     // Returns direction with length 1.0
     Vec3 normalized() const {
         double len = norm();

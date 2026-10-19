@@ -70,3 +70,4 @@ void Window::present() {
 
 int Window::get_width() const { return m_width; }
 int Window::get_height() const { return m_height; }
+SDL_Renderer* Window::get_renderer() const { return m_sdl_renderer; }

@@ -23,6 +23,8 @@ public:
     int get_width() const;
     int get_height() const;
 
+    SDL_Renderer* get_renderer() const;
+
 private:
     int m_width;
     int m_height;

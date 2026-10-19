@@ -30,11 +30,6 @@ void PixelBuffer::set_pixel(int x, int y, const Colour& color) {
     m_pixels[y * m_width + x] = color.to_argb32();
 }
 
-void PixelBuffer::clear(const Colour& colour) {
-    uint32_t packed = colour.to_argb32();
-    std::fill(m_pixels.begin(), m_pixels.end(), packed);
-}
-
 void PixelBuffer::render() {
     SDL_UpdateTexture(m_texture, nullptr, m_pixels.data(), m_width * sizeof(uint32_t));
     SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);

@@ -19,10 +19,6 @@ public:
     void clear(uint8_t r = 0, uint8_t g = 0, uint8_t b = 0);
     void present();
 
-    // Getters for dimensions (useful for ray-tracing resolution)
-    int get_width() const;
-    int get_height() const;
-
     SDL_Renderer* get_renderer() const;
 
 private:

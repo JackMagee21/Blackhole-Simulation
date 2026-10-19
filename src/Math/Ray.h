@@ -8,9 +8,4 @@ struct Ray {
 
     constexpr Ray(const Vec3& origin, const Vec3& direction)
         : origin(origin), direction(direction) {}
-
-    // Position along the ray at distance t: p(t) = origin + t * direction
-    Vec3 at(double t) const {
-        return origin + direction * t;
-    }
 };

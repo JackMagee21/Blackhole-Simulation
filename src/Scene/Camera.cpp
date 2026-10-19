@@ -54,9 +54,3 @@ void Camera::look_at(const Vec3& pos, const Vec3& target) {
 void Camera::set_aspect_ratio(double aspect_ratio) {
     m_aspect_ratio = aspect_ratio;
 }
-
-void Camera::set_fov(double fov_degrees) {
-    m_fov_degrees = fov_degrees;
-    double fov_radians = m_fov_degrees * (M_PI / 180.0);
-    m_viewport_scale = std::tan(fov_radians * 0.5);
-}

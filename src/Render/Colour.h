@@ -60,11 +60,5 @@ struct Colour {
         return (0xFFu << 24) | (ir << 16) | (ig << 8) | ib;
     }
 
-    // Common presets
     static constexpr Colour black() { return {0.0, 0.0, 0.0}; }
-    static constexpr Colour white() { return {1.0, 1.0, 1.0}; }
-
-    static constexpr Colour Red() { return {1.0, 0.0, 0.0}; }
-    static constexpr Colour Green() { return {0.0, 1.0, 0.0}; }
-    static constexpr Colour Blue() { return {0.0, 0.0, 1.0}; }
 };

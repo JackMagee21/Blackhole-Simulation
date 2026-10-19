@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "PixelBuffer.h"
+#include "../Window/Window.h"
+#include "PixelBuffer/PixelBuffer.h"
 #include "Colour.h"
 #include <cmath>
 

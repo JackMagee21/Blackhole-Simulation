@@ -30,8 +30,8 @@ int main() {
                 double wave = (std::sin(dist * 0.04 - t) + 1.0) * 0.5;
                 
                 // Colour math using operator* and operator+
-                Colour core_colour(1.0, 0.4, 0.1); // Warm accretion disk orange
-                Colour edge_colour(0.1, 0.2, 0.8); // Blue gravitational shift
+                Colour core_colour(0.0, 0.0, 0.0); // Warm accretion disk orange
+                Colour edge_colour(1.0, 1.0, 1.0); // Blue gravitational shift
 
                 Colour blended = (core_colour * wave) + (edge_colour * (1.0 - wave));
 

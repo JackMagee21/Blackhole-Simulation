@@ -37,13 +37,18 @@ int main() {
     Window window("Relativistic Black Hole - Schwarzschild Geodesics", screen_width, screen_height);
     PixelBuffer buffer(window.get_renderer(), screen_width, screen_height);
 
+    // Black hole mass in geometric units (G = c = 1). Event horizon radius is 2M.
+    // Scene distances below are multiples of M, so changing it scales the hole without changing the view.
+    const double black_hole_mass = 1.0;
+
     Vec3 target(0.0, 0.0, 0.0);
     double fov_degrees = 55.0;
-    double orbit_radius = 16.0;
+    double orbit_radius = 16.0 * black_hole_mass;
+    double camera_height = 2.5 * black_hole_mass;
     double orbit_angle = 0.0;
 
-    Camera camera(Vec3(0.0, 2.0, -orbit_radius), target, fov_degrees, aspect_ratio);
-    DeflectionTable deflection_table;
+    Camera camera(Vec3(0.0, camera_height, -orbit_radius), target, fov_degrees, aspect_ratio);
+    DeflectionTable deflection_table(black_hole_mass);
 
     while (window.is_open()) {
         window.poll_events();
@@ -52,7 +57,7 @@ int main() {
         orbit_angle += 0.008;
         double cam_x = std::sin(orbit_angle) * orbit_radius;
         double cam_z = -std::cos(orbit_angle) * orbit_radius;
-        camera.look_at(Vec3(cam_x, 2.5, cam_z), target);
+        camera.look_at(Vec3(cam_x, camera_height, cam_z), target);
 
         // Only retraces when the camera's distance from the hole changes
         Vec3 cam_pos = camera.get_position();

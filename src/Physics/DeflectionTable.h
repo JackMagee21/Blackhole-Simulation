@@ -14,7 +14,7 @@
 // Assumes the camera is outside the photon sphere (r > 3M).
 class DeflectionTable {
     public:
-        explicit DeflectionTable(double M = 1.0, int samples = 4096);
+        explicit DeflectionTable(double M, int samples = 4096);
 
         // Rebuilds the table only if the camera's distance from the hole has changed
         void update(double camera_radius);

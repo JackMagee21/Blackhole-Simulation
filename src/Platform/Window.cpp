@@ -48,6 +48,8 @@ bool Window::is_open() const {
 }
 
 void Window::poll_events() {
+    m_input = InputState();
+
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
@@ -55,6 +57,18 @@ void Window::poll_events() {
         }
         if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
             m_is_running = false;
+        }
+
+        // SDL key codes for printable keys are their ASCII characters
+        if (event.type == SDL_KEYDOWN && !event.key.repeat && event.key.keysym.sym < 128) {
+            m_input.keys_pressed.push_back(static_cast<char>(event.key.keysym.sym));
+        }
+        if (event.type == SDL_MOUSEMOTION && (event.motion.state & SDL_BUTTON_LMASK)) {
+            m_input.mouse_dx += event.motion.xrel;
+            m_input.mouse_dy += event.motion.yrel;
+        }
+        if (event.type == SDL_MOUSEWHEEL) {
+            m_input.wheel += event.wheel.preciseY;
         }
     }
 }
@@ -66,6 +80,10 @@ void Window::clear(uint8_t r, uint8_t g, uint8_t b) {
 
 void Window::present() {
     SDL_RenderPresent(m_sdl_renderer);
+}
+
+void Window::set_title(const std::string& title) {
+    SDL_SetWindowTitle(m_sdl_window, title.c_str());
 }
 
 SDL_Renderer* Window::get_renderer() const { return m_sdl_renderer; }
